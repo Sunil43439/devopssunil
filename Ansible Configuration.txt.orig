@@ -1,0 +1,126 @@
+1) Install Oracle Virtual Box
+2) Install Extension
+3) Install Vagrant
+4) Create a folder
+5) Vagrant init
+6) Vagrant multi server configuration
+  config.vm.define "master" do |master|    
+        master.vm.box = "ubuntu/trusty64"
+        # You may wish to use a more obscure private ip, like 10.2.2.4
+        master.vm.network "private_network", ip: "10.0.0.200"
+  end
+  config.vm.define "slave" do |slave|    
+        slave.vm.box = "ubuntu/trusty64"
+        # You may wish to use a more obscure private ip, like 10.2.2.5
+        slave.vm.network "private_network", ip: "10.0.0.201"
+  end
+7) Vagrant up
+8) ssh-keygen -t rsa
+9) ssh-copy-id vagrant@10.0.0.201
+10) ssh 10.0.0.201
+11) sudo apt-get update
+12) sudo apt-get install software-properties-common
+14) sudo add-apt-repository ppa:ansible/ansible
+15) sudo apt-get update
+16) sudo apt-get install ansible
+17) ansible --version
+18) ansible-playbook --version
+19) ansible-galaxy --version
+20) history
+<<<<<<< Updated upstream
+=======
+
+
+
+
+Ansible Host File
+=====================
+vi /etc/ansible/hosts
+
+Ansible Configuration File
+==============================
+vi /etc/ansible/ansible.cfg
+
+Ansible List Hosts Commands
+==============================
+ansible --list-hosts all
+ansible --list-hosts "*"
+ansible --list-hosts slave
+
+Task = Modules + Commands
+
+Ansible Ping all Hosts using Ping Module
+===========================================
+ansible -m ping all
+10.0.0.201 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+
+
+Ansible get hostName of all the Hosts using command Module
+===========================================================
+ansible -m command -a "hostname" all
+10.0.0.201 | CHANGED | rc=0 >>
+vagrant-ubuntu-trusty-64
+
+Ansible Play
+================
+hostName.yml
+===============
+---
+- hosts: all
+  tasks:
+    - command: hostname
+  
+ansible-playbook playbooks/hostname.yml
+
+mysql.yaml
+===============
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: ensure mysql is at the latest version
+      apt: name=mysql-server state=present update_cache=yes
+    - name: start mysql
+      service:
+          name: mysql
+          state: started
+		  
+nginx.yaml
+============
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: ensure nginx is at the latest version
+      apt: name=nginx state=present update_cache=yes
+    - name: start nginx
+      service:
+          name: nginx
+          state: started
+apache2.yaml
+==============
+---
+- hosts: all
+  become: true
+  vars:
+    http_port: 8080
+    domain: example.com
+  tasks:
+    - name: ensure apache2 is at the latest version
+      apt: name=apache2 state=latest update_cache=yes
+    - name: ensure lib apache2 is at the latest version
+      apt: name=libapache2-mod-wsgi state=present update_cache=yes
+    - name: ensure python pip is at the latest version
+      apt: name=python-pip state=present update_cache=yes
+    - name: ensure python virtual env is at the latest version
+      apt: name=python-virtualenv state=present update_cache=yes
+   - name: start apache2
+      service:
+          name: apache2
+          state: started
+
+
+>>>>>>> Stashed changes
